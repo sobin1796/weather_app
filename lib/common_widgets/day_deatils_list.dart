@@ -20,7 +20,7 @@ Widget daydetails(
       children: [
         Text(
           time ?? 'null',
-          style: TextStyle(color: title_color, fontSize: 14),
+          style: const TextStyle(color: title_color, fontSize: 14),
         ),
         Container(
           decoration: BoxDecoration(
@@ -37,7 +37,8 @@ Widget daydetails(
         ),
         Text(
           temp ?? '',
-          style: TextStyle(color: title_color, fontSize: 14),
+          style: const TextStyle(
+              color: const Color.fromARGB(255, 255, 191, 0), fontSize: 14),
         ),
       ],
     ),

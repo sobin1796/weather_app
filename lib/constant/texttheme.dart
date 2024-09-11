@@ -22,3 +22,29 @@ Widget subtext({
         color: sub_title_color, fontSize: size, fontWeight: FontWeight.bold),
   );
 }
+
+Widget texthighlight({
+  String? name,
+  double? size,
+}) {
+  return Text(
+    name ?? 'no text',
+    style: TextStyle(
+        color: const Color.fromARGB(255, 255, 183, 0),
+        fontSize: size,
+        fontWeight: FontWeight.bold),
+  );
+}
+
+Widget textdesc({
+  String? name,
+  double? size,
+}) {
+  return Text(
+    name ?? 'no text',
+    style: TextStyle(
+        color: const Color.fromARGB(255, 135, 222, 254),
+        fontSize: size,
+        fontWeight: FontWeight.bold),
+  );
+}
