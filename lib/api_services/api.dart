@@ -4,12 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:weather_app/weather_model/weather_model.dart';
 
 class WeatherApi {
-  static const String baseurl =
-      "https://api.weatherapi.com/v1/current.json?key=76c91100a4444d4c91c143421241009&q=bhaktapur";
+  static const String apiKey = "76c91100a4444d4c91c143421241009";
 
-  // Fetch data from API
-  static Future<WeatherModel?> getData() async {
-    var url = Uri.parse(baseurl);
+  // Fetch weather data for a specific location
+  static Future<WeatherModel?> getData(String location) async {
+    final String baseUrl =
+        "https://api.weatherapi.com/v1/current.json?key=$apiKey&q=$location";
+    var url = Uri.parse(baseUrl);
 
     try {
       final res = await http.get(url);

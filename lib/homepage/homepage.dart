@@ -12,73 +12,120 @@ class Homepage extends StatefulWidget {
   @override
   State<Homepage> createState() => _HomepageState();
 }
+// Default location or user input: default location is set to bhaktpur
 
 class _HomepageState extends State<Homepage> {
   Future<WeatherModel?>? _weatherData;
-
+  String location = "Bhaktapur";
   @override
   void initState() {
     super.initState();
-    _weatherData = WeatherApi.getData(); // Fetch data on initialization
+    _fetchWeatherData(location);
+  }
+
+  // Fetch weather data for the user-entered location
+  void _fetchWeatherData(String location) {
+    setState(() {
+      _weatherData = WeatherApi.getData(location);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<WeatherModel?>(
-        future: _weatherData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-              backgroundColor: backgroundthemecolor_black,
-            ));
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('No data available'));
-          } else {
-            final weather = snapshot.data!;
-            return Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration:
-                  const BoxDecoration(color: backgroundthemecolor_black),
-              child: Padding(
-                padding: const EdgeInsets.all(22),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildHeader(weather),
-                      SizedBox(height: MediaQuery.of(context).size.height / 25),
-                      _buildCurrentWeather(weather),
-                      const Divider(
-                          color: Color.fromARGB(255, 78, 78, 82),
-                          thickness: 1,
-                          endIndent: 20,
-                          indent: 20),
-                      SizedBox(height: MediaQuery.of(context).size.height / 25),
-                      _buildWeatherElements(weather),
-                      SizedBox(height: MediaQuery.of(context).size.height / 50),
-                      _buildDayTemperature(),
-                      SizedBox(height: MediaQuery.of(context).size.height / 50),
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: titletext(name: 'Details:', size: 14)),
-                      SizedBox(height: MediaQuery.of(context).size.height / 50),
-                      _buildWeatherDetails(weather),
-                    ],
-                  ),
+      body: SingleChildScrollView(
+        child: Container(
+          color: backgroundthemecolor_black,
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height / 50),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        style: TextStyle(color: title_color),
+                        decoration: InputDecoration(
+                          labelText: 'Enter Location',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          location = value;
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        _fetchWeatherData(location);
+                      },
+                    ),
+                  ],
                 ),
               ),
-            );
-          }
-        },
+              FutureBuilder<WeatherModel?>(
+                future: _weatherData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: backgroundthemecolor_black,
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data == null) {
+                    return const Center(child: Text('No data available'));
+                  } else {
+                    final weather = snapshot.data!;
+                    return _buildWeatherContent(weather);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-// first section of the code currrent date and time
+  Widget _buildWeatherContent(WeatherModel weather) {
+    return Container(
+      decoration: BoxDecoration(color: backgroundthemecolor_black),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildHeader(weather),
+            SizedBox(height: MediaQuery.of(context).size.height / 25),
+            _buildCurrentWeather(weather),
+            const Divider(
+              color: Color.fromARGB(255, 78, 78, 82),
+              thickness: 1,
+              endIndent: 20,
+              indent: 20,
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height / 25),
+            _buildWeatherElements(weather),
+            SizedBox(height: MediaQuery.of(context).size.height / 50),
+            _buildDayTemperature(),
+            SizedBox(height: MediaQuery.of(context).size.height / 50),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: titletext(name: 'Details:', size: 14),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height / 50),
+            _buildWeatherDetails(weather),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // First section of the code: current date and time
   Widget _buildHeader(WeatherModel weather) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,7 +133,7 @@ class _HomepageState extends State<Homepage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            titletext(name: weather.name ?? '', size: 24),
+            titletext(name: weather.name ?? 'no data', size: 24),
             Row(
               children: [
                 textdesc(name: '${weather.time},', size: 12),
@@ -98,27 +145,30 @@ class _HomepageState extends State<Homepage> {
         Row(
           children: [
             IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.tune),
-                color: title_color),
+              onPressed: () {},
+              icon: const Icon(Icons.tune),
+              color: title_color,
+            ),
             IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.grid_view),
-                color: title_color),
+              onPressed: () {},
+              icon: const Icon(Icons.grid_view),
+              color: title_color,
+            ),
           ],
         ),
       ],
     );
   }
 
-//  /dispaly main current value section  for currect weather
+  // Display the main current value section for current weather
   Widget _buildCurrentWeather(WeatherModel weather) {
     return Container(
       height: MediaQuery.of(context).size.height / 6,
       width: MediaQuery.of(context).size.width / 1.1,
       decoration: const BoxDecoration(
-          color: backgroundthemecolor_black,
-          borderRadius: BorderRadius.all(Radius.circular(20))),
+        color: backgroundthemecolor_black,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -128,10 +178,11 @@ class _HomepageState extends State<Homepage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FittedBox(
-                    child: titletext(name: '${weather.tempC}°', size: 65)),
+                  child: titletext(name: '${weather.tempC}°', size: 65),
+                ),
                 FittedBox(
-                    child:
-                        textdesc(name: '${weather.conditionText}', size: 14)),
+                  child: textdesc(name: '${weather.conditionText}', size: 14),
+                ),
               ],
             ),
           ),
@@ -149,14 +200,15 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-//section of other values of weather
+  // Section of other values of weather
   Widget _buildWeatherElements(WeatherModel weather) {
     return Container(
       height: MediaQuery.of(context).size.height / 7.5,
       width: MediaQuery.of(context).size.width / 1.1,
       decoration: const BoxDecoration(
-          color: boxtile_color,
-          borderRadius: BorderRadius.all(Radius.circular(20))),
+        color: boxtile_color,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -188,13 +240,14 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // overall day temperature
+  // Overall day temperature
   Widget _buildDayTemperature() {
     return Column(
       children: [
         Align(
-            alignment: Alignment.centerLeft,
-            child: titletext(name: 'Today', size: 14)),
+          alignment: Alignment.centerLeft,
+          child: titletext(name: 'Today', size: 14),
+        ),
         SizedBox(height: MediaQuery.of(context).size.height / 50),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -227,12 +280,13 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-//extra deatils of weather
+  // Extra details of weather
   Widget _buildWeatherDetails(WeatherModel weather) {
     return Container(
       decoration: const BoxDecoration(
-          color: boxtile_color,
-          borderRadius: BorderRadius.all(Radius.circular(20))),
+        color: boxtile_color,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
       height: MediaQuery.of(context).size.height / 3,
       width: MediaQuery.of(context).size.width,
       child: Padding(
@@ -266,7 +320,7 @@ class _HomepageState extends State<Homepage> {
           height: MediaQuery.of(context).size.height / 18,
           width: MediaQuery.of(context).size.width / 13,
         ),
-        textdesc(name: value, size: 16),
+        titletext(name: value, size: 16),
       ],
     );
   }
