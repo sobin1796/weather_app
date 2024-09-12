@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:weather_app/constant/colors_name.dart';
 import 'package:weather_app/constant/texttheme.dart';
 
+// widgets for whole day temperatures
 Widget buildDetailRow({
   required BuildContext context,
   String? label,
@@ -23,6 +24,7 @@ Widget buildDetailRow({
   );
 }
 
+//major elements of weather
 Widget buildWeatherElement(
     {String? imagePath, String? value, String? label, required context}) {
   return Column(
@@ -41,6 +43,7 @@ Widget buildWeatherElement(
   );
 }
 
+//extra features of weathers
 Widget daydetails(
     {required BuildContext context,
     String? image,

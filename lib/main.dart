@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:weather_app/Page_routes/page_routes.dart';
 
 void main() {
@@ -11,12 +10,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => null)],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        routerConfig: MyappRoutes().router,
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: MyappRoutes().router,
     );
   }
 }
