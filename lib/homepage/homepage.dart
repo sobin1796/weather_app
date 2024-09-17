@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/api_services/api.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/Providers/Provider.dart';
 import 'package:weather_app/common_widgets/elementslist/daydetails_imageList.dart';
 import 'package:weather_app/common_widgets/homepagewdiget.dart';
 import 'package:weather_app/constant/colors_name.dart';
@@ -15,52 +16,62 @@ class Homepage extends StatefulWidget {
 // Default location or user input: default location is set to bhaktpur
 
 class _HomepageState extends State<Homepage> {
-  Future<WeatherModel?>? _weatherData;
   String location = "Bhaktapur";
   @override
   void initState() {
     super.initState();
-    _fetchWeatherData(location);
-  }
-
-// fetching data from api and put it into _weatherdata
-  void _fetchWeatherData(String location) {
-    setState(() {
-      _weatherData = WeatherApi.getData(location);
-    });
+    Future.microtask(() => Provider.of<WeatherProvider>(context, listen: false)
+        .fetchWeather(location));
   }
 
   @override
   Widget build(BuildContext context) {
+    final weatherProvider = Provider.of<WeatherProvider>(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           color: backgroundthemecolor_black,
           child: Column(
             children: [
-              FutureBuilder<WeatherModel?>(
-                future: _weatherData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: backgroundthemecolor_black,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data == null) {
-                    return const Center(child: Text('No data available'));
-                  } else {
-                    final weather = snapshot.data!;
-                    return _buildWeatherContent(weather);
-                  }
-                },
-              ),
+              if (weatherProvider.isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                )
+              else if (weatherProvider.weatherdata != null)
+                _buildWeatherContent(weatherProvider.weatherdata!)
+              else
+                _buildNoDataContent()
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoDataContent() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.height,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'No weather data available',
+              style: TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Homepage()));
+              },
+              child: subtext(
+                name: 'Return to home',
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -126,7 +137,7 @@ class _HomepageState extends State<Homepage> {
                 child: TextField(
                   style: const TextStyle(color: title_color),
                   decoration: const InputDecoration(
-                    labelStyle: TextStyle(color: sub_title_color),
+                    labelStyle: TextStyle(color: sub_title_color, fontSize: 12),
                     labelText: 'Enter Location',
                     border: OutlineInputBorder(),
                   ),
@@ -143,7 +154,8 @@ class _HomepageState extends State<Homepage> {
                     color: sub_title_color,
                   ),
                   onPressed: () {
-                    _fetchWeatherData(location);
+                    Provider.of<WeatherProvider>(context, listen: false)
+                        .fetchWeather(location);
                   },
                 ),
               ),

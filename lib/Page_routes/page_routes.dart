@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:weather_app/checkpage.dart';
 import 'package:weather_app/homepage/homepage.dart';
 
 class MyappRoutes {
@@ -11,6 +12,11 @@ class MyappRoutes {
         path: '/',
         pageBuilder: (context, state) {
           return const MaterialPage(child: Homepage());
-        })
+        }),
+    GoRoute(
+        path: '/check',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: Checkpage());
+        }),
   ]);
 }
